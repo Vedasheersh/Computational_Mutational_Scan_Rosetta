@@ -1,0 +1,32 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+		<ScoreFunction name="r15" weights="ref2015" />
+	</SCOREFXNS>
+	<TASKOPERATIONS>
+		<InitializeFromCommandline name="ifcl"/>
+		<RestrictToRepacking name="rtr" />
+		Design and repack residues based on resfile
+		<ReadResfile name="rrf" filename="%%resfile%%"/>
+	</TASKOPERATIONS>
+	<FILTERS>
+	</FILTERS>
+	<MOVERS>
+	
+		<MinMover name="minimize" jump="all" chi="True" bb="True" scorefxn="r15" /> 
+		
+		Single cycle of FastRelax to minimize backbone of docking partners
+		<FastRelax name="relax" scorefxn="REF2015" repeats="5" task_operations="ifcl,rrf"/>
+	
+	</MOVERS>
+	<APPLY_TO_POSE>
+	</APPLY_TO_POSE>
+	<PROTOCOLS>
+	
+		<Add mover="relax"/>
+
+		Minimize
+		<Add mover="minimize" />
+		
+	</PROTOCOLS>
+	<OUTPUT scorefxn="REF2015" />
+</ROSETTASCRIPTS>

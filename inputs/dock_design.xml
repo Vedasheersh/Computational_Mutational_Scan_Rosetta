@@ -1,0 +1,75 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+		<ScoreFunction name="r15" weights="ref2015" />
+	</SCOREFXNS>
+	<TASKOPERATIONS>
+		<InitializeFromCommandline name="ifcl"/>
+		<RestrictToRepacking name="rtr" />
+		Design and repack residues based on resfile
+		<ReadResfile name="rrf" filename="%%resfile%%"/>
+	</TASKOPERATIONS>
+	<FILTERS>
+	</FILTERS>
+	<MOVERS>
+		MINIMIZATION MOVERS
+		
+		Relax is taking too long!
+		<MinMover name="minimize" jump="all" chi="True" bb="True" scorefxn="r15" > 
+		</MinMover>
+		
+		<Backrub name="backrub_motion" pivot_residues="%%pivots%%" />
+		<GenericMonteCarlo name="backrub" mover_name="backrub_motion" scorefxn_name="REF2015" trials="500" temperature="1.0" recover_low="1" />
+		
+		Single cycle of FastRelax to minimize backbone of docking partners
+		<FastRelax name="relax" scorefxn="REF2015" repeats="1" task_operations="ifcl,rtr" />
+	
+		DOCKING MOVERS
+		<DockingProtocol name="full_dock" docking_score_high="r15" dock_min="1" ignore_default_docking_task="0" task_operations="ifcl,rtr,rrf" partners="%%partners%%"/>
+		<DockingProtocol name="hires_dock" docking_score_high="r15" docking_local_refine="1" dock_min="1" ignore_default_docking_task="0" task_operations="ifcl,rtr,rrf" partners="%%partners%%"/>
+		
+		DESIGN MOVER
+		<PackRotamersMover name="design" scorefxn="REF2015" task_operations="ifcl,rrf" />
+		
+		INTERFACE METRICS
+		<InterfaceAnalyzerMover name="analyze" scorefxn="REF2015" packstat="1" pack_input="0" pack_separated="1" interface="%%partners%%" />
+		
+		No idea why MPI does not output all structures
+		Trying this in desperation
+		<DumpPdb name="save" fname="dump.pdb" tag_time="true" scorefxn="REF2015" />
+	
+	</MOVERS>
+	<APPLY_TO_POSE>
+	</APPLY_TO_POSE>
+	<PROTOCOLS>
+		Run docking protocol
+		<Add mover="hires_dock"/>
+
+		Backrub
+		<Add mover="backrub" />
+		Design
+		<Add mover="design" />
+		
+		Backrub
+		<Add mover="backrub" />
+		Design
+		<Add mover="design" />
+		
+		Backrub
+		<Add mover="backrub" />
+		Design
+		<Add mover="design" />
+		
+		Hires-dock
+		<Add mover="hires_dock"/>
+
+		Minimize
+		<Add mover="minimize" />
+
+        Dump
+        <Add mover="save" />
+		Calculate interface metrics for the final sequence
+		Add mover="analyze" />
+		
+	</PROTOCOLS>
+	<OUTPUT scorefxn="REF2015" />
+</ROSETTASCRIPTS>

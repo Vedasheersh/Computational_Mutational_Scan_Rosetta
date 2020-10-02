@@ -1,0 +1,18 @@
+# defaults
+-ex1 
+-ex2
+-ex2aro
+-use_input_sc
+-ignore_zero_occupancy false
+-parser:protocol mutate_relax_minimize.xml
+-relax:constrain_relax_to_start_coords
+
+# 0 -> input pdb prepared file
+-in:file:s {0}
+
+# 1 -> nstruct
+-nstruct {1}
+
+# 2 -> resfile
+-parser:script_vars resfile={2}
+

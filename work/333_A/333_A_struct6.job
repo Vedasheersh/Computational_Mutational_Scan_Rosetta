@@ -1,0 +1,24 @@
+#PBS -l nodes=1:ppn=1
+
+#PBS -l walltime=8:00:00
+
+#PBS -l pmem=1gb
+
+#PBS -l mem=1gb
+
+#PBS -A cdm8_b_g_sc_default
+#PBS -j oe
+
+set -u
+
+cd $PBS_O_WORKDIR
+
+echo " "
+
+echo " "
+
+echo "JOB Started on $(hostname -s) at $(date)"
+
+
+/gpfs/group/cdm8/default/rosetta/rosetta_bin_linux_2018.33.60351_bundle/main/source/bin/rosetta_scripts.static.linuxgccrelease @flags -out:suffix _struct6
+/gpfs/group/cdm8/default/rosetta/rosetta_bin_linux_2018.33.60351_bundle/main/source/bin/InterfaceAnalyzer.static.linuxgccrelease -in:file:s _struct6*.pdb @flags_score
